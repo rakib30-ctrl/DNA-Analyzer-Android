@@ -1,4 +1,4 @@
-﻿[project]
+[project]
 name = "dna-analyzer"
 version = "1.0.0"
 description = "Bioinformatics Sequence Analysis & Phylogenetic Toolkit"
