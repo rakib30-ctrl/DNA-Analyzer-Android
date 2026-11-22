@@ -5,7 +5,12 @@ description = "Bioinformatics Sequence Analysis & Phylogenetic Toolkit"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "flet[all]>=0.82.0",
+    "flet>=0.82.0",
+]
+
+[dependency-groups]
+dev = [
+    "flet-cli>=0.82.0",
 ]
 
 [tool.flet]
