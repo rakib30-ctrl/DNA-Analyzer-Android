@@ -1,0 +1,23 @@
+﻿[project]
+name = "dna-analyzer"
+version = "1.0.0"
+description = "Bioinformatics Sequence Analysis & Phylogenetic Toolkit"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flet>=0.82.0",
+]
+
+[tool.flet]
+org = "com.rakib.dnaanalyzer"
+product = "DNA Analyzer"
+company = "Md Rakib Hossain"
+copyright = "Copyright (C) 2026 Md Rakib Hossain"
+app.path = "src"
+
+[tool.flet.icons]
+android = "assets/icon.png"
+
+[tool.flet.splash]
+color = "#0f172a"
+dark_color = "#0f172a"

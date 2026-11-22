@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build Android APK
         id: build
@@ -22,7 +22,8 @@ jobs:
           build-number: ${{ github.run_number }}
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: DNA-Analyzer-Android-APK
           path: ${{ steps.build.outputs.archive }}
+          archive: false
