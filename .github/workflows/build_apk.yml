@@ -25,5 +25,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: DNA-Analyzer-Android-APK
-          path: ${{ steps.build.outputs.archive }}
+          path: build/apk/*.apk
           archive: false
