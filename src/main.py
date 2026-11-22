@@ -1316,9 +1316,22 @@ def main(page: ft.Page):
         except Exception:
             notify(f"{label} ready in box.")
 
-    # Native Android File Pickers (Import & Export)
-    async def on_main_file_picked(e):
-        files = getattr(e, "files", None)
+    # Native Android File Pickers (Flet 1.x Async Service API)
+    main_picker = ft.FilePicker()
+    phylo_picker = ft.FilePicker()
+    save_picker = ft.FilePicker()
+    page.services.extend([main_picker, phylo_picker, save_picker])
+
+    async def pick_main_fasta(_e=None):
+        try:
+            files = await main_picker.pick_files(
+                allow_multiple=False,
+                with_data=True,
+                file_type=ft.FilePickerFileType.ANY,
+            )
+        except Exception as ex:
+            notify(f"File picker error: {ex}")
+            return
         if not files:
             return
         f = files[0]
@@ -1341,8 +1354,16 @@ def main(page: ft.Page):
         refresh_active_module()
         notify(f"Loaded '{f.name}' ({len(recs)} record(s), {len(recs[0][1]):,} bp).")
 
-    async def on_phylo_file_picked(e):
-        files = getattr(e, "files", None)
+    async def pick_phylo_fasta(_e=None):
+        try:
+            files = await phylo_picker.pick_files(
+                allow_multiple=False,
+                with_data=True,
+                file_type=ft.FilePickerFileType.ANY,
+            )
+        except Exception as ex:
+            notify(f"File picker error: {ex}")
+            return
         if not files:
             return
         f = files[0]
@@ -1359,25 +1380,10 @@ def main(page: ft.Page):
         phylo_input.value = raw_str.strip()
         run_build_tree(None)
 
-    async def on_save_file_result(e):
-        path = getattr(e, "path", None)
-        if path and state["pending_export_bytes"]:
-            try:
-                with open(path, "wb") as fp:
-                    fp.write(state["pending_export_bytes"])
-                notify(f"Saved file to {os.path.basename(path)}")
-            except Exception as ex:
-                notify(f"Save error: {ex}")
-
-    main_picker = ft.FilePicker(on_result=on_main_file_picked)
-    phylo_picker = ft.FilePicker(on_result=on_phylo_file_picked)
-    save_picker = ft.FilePicker(on_result=on_save_file_result)
-    page.services.extend([main_picker, phylo_picker, save_picker])
-
     async def export_text_or_bytes(filename: str, data_bytes: bytes):
         state["pending_export_bytes"] = data_bytes
         try:
-            res = await save_picker.save_file(file_name=filename, file_bytes=data_bytes)
+            res = await save_picker.save_file(file_name=filename, src_bytes=data_bytes, file_type=ft.FilePickerFileType.ANY)
             if res:
                 notify(f"Exported {filename}")
         except Exception:
@@ -2221,7 +2227,7 @@ def main(page: ft.Page):
 
     view_phylo = ft.Column([
         ft.Row([
-            ft.OutlinedButton("Upload Multi-FASTA", icon=ft.Icons.FOLDER_OPEN, on_click=lambda _e: phylo_picker.pick_files(with_data=True)),
+            ft.OutlinedButton("Upload Multi-FASTA", icon=ft.Icons.FOLDER_OPEN, on_click=pick_phylo_fasta),
             ft.OutlinedButton("Sample Taxa", on_click=lambda _e: (setattr(phylo_input, "value", SAMPLE_PHYLO_MULTI_FASTA.strip()), run_build_tree())),
         ], wrap=True),
         phylo_input,
@@ -2323,7 +2329,7 @@ def main(page: ft.Page):
                         ft.Row([
                             ft.Button("Analyze", icon=ft.Icons.PLAY_ARROW, on_click=lambda _e: select_tab(0)),
                             ft.Button("Graphs", icon=ft.Icons.BAR_CHART, bgcolor="#0d9488", color="#ffffff", on_click=open_viz_studio),
-                            ft.OutlinedButton("Upload FASTA", icon=ft.Icons.UPLOAD_FILE, on_click=lambda _e: main_picker.pick_files(with_data=True)),
+                            ft.OutlinedButton("Upload FASTA", icon=ft.Icons.UPLOAD_FILE, on_click=pick_main_fasta),
                             ft.OutlinedButton("Sample", on_click=load_sample_dna),
                             ft.OutlinedButton("Export Report", on_click=export_full_txt_report),
                             ft.OutlinedButton("Clear", on_click=clear_all),
